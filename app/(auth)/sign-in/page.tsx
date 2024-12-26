@@ -1,21 +1,48 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client'
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
 import { BookOpen } from 'lucide-react'
 import Link from "next/link"
 import { motion } from "framer-motion"
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+
 
 export default function SignIn() {
+    const router = useRouter();
+    const [email,setEmail] = useState("");
+    const [password,setPassword] = useState("");
+
+    const handleSubmit = async (e: { preventDefault: () => void }) => {
+      e.preventDefault();
+
+      if(!email || !password){
+        alert("Please fill all fields");
+        return;
+      }
+      try{
+
+        const res = await fetch(`/api/users?email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' }
+        });
+
+        if(res.ok){
+            alert("User signed in successfully");
+            router.push('/user/home')
+
+          }else{
+            const errorData = await res.json();
+            alert(errorData.message || "Incorrect email or password");
+          }
+        
+      }catch(err){
+        console.log("Error signing in user",err);
+      }
+    };
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted/50 px-4 py-12">
       <motion.div
@@ -30,14 +57,11 @@ export default function SignIn() {
             <span className="text-xl font-bold">BookHaven</span>
           </Link>
         </div>
-        <Card>
-          <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold text-center">Sign in</CardTitle>
-            <CardDescription className="text-center">
-              Enter your email and password to access your account
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
+        <form onSubmit={handleSubmit} className="border-[1.5px] bg-white/10 p-4 shadow-lg rounded-lg max-w-2xl">
+          <div className="space-y-1 text-center">
+            <h2 className="text-2xl font-bold">Sign in</h2>
+          </div>
+          <div className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -47,6 +71,8 @@ export default function SignIn() {
                 autoCapitalize="none"
                 autoComplete="email"
                 autoCorrect="off"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
             <div className="space-y-2">
@@ -59,19 +85,24 @@ export default function SignIn() {
                   Forgot password?
                 </Link>
               </div>
-              <Input id="password" type="password" />
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
             </div>
-          </CardContent>
-          <CardFooter className="flex flex-col space-y-4">
-            <Button className="w-full">Sign in</Button>
+          </div>
+          <div className="flex flex-col space-y-4 mt-4">
+            <Button type="submit" className="w-full">Sign in</Button>
             <div className="text-center text-sm">
-              `Do not have an account`?{" "}
+              {"Don't have an account"} ?{" "}
               <Link href="/sign-up" className="text-primary hover:underline underline-offset-4">
                 Sign up
               </Link>
             </div>
-          </CardFooter>
-        </Card>
+          </div>
+        </form>
       </motion.div>
     </div>
   )

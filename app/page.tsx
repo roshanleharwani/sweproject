@@ -10,10 +10,8 @@ import Image from "next/image"
 import Link from "next/link"
 
 export default function BookstoreLanding() {
-  const locomotiveScroll = new LocomotiveScroll();
-
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col scroll-smooth">
       {/* Header */}
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-16 items-center justify-between">
@@ -22,16 +20,13 @@ export default function BookstoreLanding() {
             <span className="text-xl font-bold">BookHaven</span>
           </Link>
           <nav className="hidden md:flex items-center space-x-6">
-            <Link href="#" className="text-sm font-medium hover:text-primary">
+            <Link href="#category" className="text-sm font-medium hover:text-primary">
               Categories
             </Link>
-            <Link href="#" className="text-sm font-medium hover:text-primary">
-              New Releases
-            </Link>
-            <Link href="#" className="text-sm font-medium hover:text-primary">
+            <Link href="#best" className="text-sm font-medium hover:text-primary">
               Best Sellers
             </Link>
-            <Link href="#" className="text-sm font-medium hover:text-primary">
+            <Link href="#about" className="text-sm font-medium hover:text-primary">
               About
             </Link>
           </nav>
@@ -92,7 +87,7 @@ export default function BookstoreLanding() {
         </section>
 
         {/* Featured Books */}
-        <section className="bg-muted py-16">
+        <section className="bg-muted py-16" id="best">
           <div className="container px-4">
             <div className="mb-12 text-center">
               <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">Featured Books</h2>
@@ -133,7 +128,7 @@ export default function BookstoreLanding() {
         </section>
 
         {/* Categories */}
-        <section className="py-16">
+        <section className="py-16" id="category">
           <div className="container px-4">
             <h2 className="mb-12 text-center text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
               Browse by Category
@@ -164,7 +159,7 @@ export default function BookstoreLanding() {
         </section>
 
         {/* Testimonials */}
-        <section className="bg-muted py-16">
+        <section className="bg-muted py-16" id="about">
           <div className="container px-4">
             <h2 className="mb-12 text-center text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
               What Our Readers Say
