@@ -38,5 +38,5 @@ export async function middleware(req: NextRequest) {
 
 // Apply middleware to protected routes
 export const config = {
-  matcher: ['/user/home','/user/orders','/user/wishlists','/user/search', '/sign-in', '/sign-up'], // Adjust the paths as needed
+  matcher: ['/user/home','/user/orders','/user/wishlists','/user/search', '/sign-in', '/sign-up','/user/profile','/user/cart'], 
 };

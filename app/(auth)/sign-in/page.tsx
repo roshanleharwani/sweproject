@@ -31,7 +31,6 @@ export default function SignIn() {
         });
 
         if(res.ok){
-            alert("User signed in successfully");
             router.push('/user/home')
 
           }else{
