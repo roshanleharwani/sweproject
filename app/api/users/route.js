@@ -47,7 +47,7 @@ export async function POST(req) {
     const response = NextResponse.json(result, { status: 201 });
     response.cookies.set('auth-token', token, {
       httpOnly: true,
-      maxAge: 60 * 60, // 1 hour
+      maxAge: 60 * 60 * 60, // 1 hour
       secure: process.env.NODE_ENV === 'production',
     });
     return response;
@@ -91,7 +91,7 @@ export async function GET(req) {
     
     response.cookies.set('auth-token', token, {
       httpOnly: true,
-      maxAge: 60 * 60, // 1 hour
+      maxAge: 60 * 60 * 60, // 1 hour
       secure: (process.env.NODE_ENV === 'production') || false,
     });
     

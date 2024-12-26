@@ -5,7 +5,7 @@ const SECRET_KEY = new TextEncoder().encode(process.env.JWT_SECRET); // Use an e
 
 export async function middleware(req: NextRequest) {
   const token = req.cookies.get('auth-token')?.value;
-  console.log('Token from cookies:', token); // Debugging statement
+
 
   if (token) {
     try {
