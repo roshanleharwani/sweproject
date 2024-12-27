@@ -35,6 +35,7 @@ export default function SignIn() {
 
           }else{
             const errorData = await res.json();
+            console.log(errorData.message)
             alert(errorData.message || "Incorrect email or password");
           }
         

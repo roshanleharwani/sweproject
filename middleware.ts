@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from 'next/server';
 import { jwtVerify } from 'jose';
 
@@ -5,7 +6,6 @@ const SECRET_KEY = new TextEncoder().encode(process.env.JWT_SECRET); // Use an e
 
 export async function middleware(req: NextRequest) {
   const token = req.cookies.get('auth-token')?.value;
-
 
   if (token) {
     try {
@@ -16,13 +16,17 @@ export async function middleware(req: NextRequest) {
       await jwtVerify(token, SECRET_KEY);
 
       // Redirect authenticated users from /sign-in or /sign-up to /home
-      if (req.nextUrl.pathname === '/sign-in' || req.nextUrl.pathname === '/sign-up' ) {
+      if (req.nextUrl.pathname === '/sign-in' || req.nextUrl.pathname === '/sign-up') {
         return NextResponse.redirect(new URL('/user/home', req.url));
       }
-
+      console.log('middleware')
       return NextResponse.next(); // Proceed to the requested page
-    } catch (err) {
+    } catch (err:any) {
       console.error('Invalid Token:', err);
+      if (err.code === 'ERR_JWT_EXPIRED') {
+        // Redirect to sign-in if token is expired
+        return NextResponse.redirect(new URL('/sign-in', req.url));
+      }
       // Redirect to sign-in if token is invalid
       return NextResponse.redirect(new URL('/sign-in', req.url));
     }
@@ -38,5 +42,5 @@ export async function middleware(req: NextRequest) {
 
 // Apply middleware to protected routes
 export const config = {
-  matcher: ['/user/home','/user/orders','/user/wishlists','/user/search', '/sign-in', '/sign-up','/user/profile','/user/cart'], 
+  matcher: ['/sign-in', '/sign-up','/user/:path*'],
 };

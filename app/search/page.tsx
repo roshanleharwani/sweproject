@@ -6,6 +6,7 @@ import { BookOpen, Search, Loader2 } from 'lucide-react'
 import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
 import { useState } from "react"
+import Image from "next/image"
 
 // Simulated book data
 const books = [
@@ -130,7 +131,7 @@ export default function SearchResults() {
                     className="group relative overflow-hidden rounded-lg bg-background p-4 shadow-lg transition-shadow hover:shadow-xl"
                   >
                     <div className="aspect-[3/4] relative">
-                      <img
+                      <Image
                         src={book.cover}
                         alt={book.title}
                         className="rounded object-cover transition-transform group-hover:scale-105"

@@ -16,6 +16,8 @@ import {
     DropdownMenuTrigger,
   } from "@/components/ui/dropdown-menu"
 
+  import jwt from 'jsonwebtoken';
+import { useEffect, useState } from "react"
   
   
 function Header() {
@@ -38,6 +40,32 @@ function Header() {
         alert("An error occurred while logging out");
       }
     };
+
+    const [name,setName] = useState("");
+    const [email,setEmail] = useState("");
+
+    const fetcher = useEffect(() => {
+      const fetchUserData = async () => {
+        try {
+          const res = await fetch('/api/payload/');
+          if (res.ok) {
+            const user = await res.json();
+            const name = user.firstName + " " + user.lastName;
+            const email = user.email;
+            setName(name);
+            setEmail(email);
+          } else {
+            console.error("Failed to fetch user data");
+          }
+        } catch (err) {
+          console.error("An error occurred while fetching user data", err);
+        }
+      };
+    
+      fetchUserData();
+    }, []);
+    
+
     return (
     <>
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -82,9 +110,9 @@ function Header() {
             <DropdownMenuContent className="w-56" align="end" forceMount>
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">John Doe</p>
+                  <p className="text-sm font-medium leading-none">{name}</p>
                   <p className="text-xs leading-none text-muted-foreground">
-                    john@example.com
+                    {email}
                   </p>
                 </div>
               </DropdownMenuLabel>
@@ -113,4 +141,3 @@ function Header() {
   }
   
   export default Header
-  

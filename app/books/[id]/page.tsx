@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 'use client'
-
-import { useState } from "react"
+import Header from '@/components/ui/header'
+import { useEffect, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { BookOpen, Heart, ShoppingCart, Star, ChevronRight, ChevronLeft } from 'lucide-react'
@@ -15,14 +15,14 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-
+import {useRouter} from "next/navigation"
 // This would come from your API/database
 const bookData = {
   id: "1",
-  title: "The Great Gatsby",
-  author: "F. Scott Fitzgerald",
-  price: 19.99,
-  rating: 4.5,
+  title: "",
+  author: "",
+  price: 0,
+  rating: 0.0,
   reviews: 128,
   description: `
     The Great Gatsby, F. Scott Fitzgerald's third book, stands as the supreme achievement of his career. This exemplary novel of the Jazz Age has been acclaimed by generations of readers. The story is of the fabulously wealthy Jay Gatsby and his new love for the beautiful Daisy Buchanan, of lavish parties on Long Island at a time when The New York Times noted "gin was the national drink and sex the national obsession," it is an exquisitely crafted tale of America in the 1920s.
@@ -46,25 +46,46 @@ const bookData = {
 export default function BookDetail() {
   const [selectedImage, setSelectedImage] = useState(0)
   const [quantity, setQuantity] = useState("1")
+  
+  const router = useRouter();
+  const [book, setBook] = useState(bookData)
+  useEffect(() => {
+    async function fetchBook() {
+      const id = window.location.pathname.split('/').pop();
+      const response = await fetch(`/api/books/fetchOne?id=${id}`);
+      const data = await response.json();
+      setBook(data);
+    }
+    fetchBook();
+  }, [])
+
+  const handleCart = async () => {
+    try {
+      const response = await fetch('/api/cart/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          title: book.title, 
+          author: book.author, 
+          price: book.price, 
+          qty: parseInt(quantity), 
+        }),
+      });
+      if (response.ok) {
+        router.push('/user/cart');
+      } else {
+        const errorData = await response.json();
+        alert(errorData.message || "Error adding item to cart");
+      }
+    } catch (err) {
+      console.error("An error occurred while adding item to cart", err);
+      alert("An error occurred while adding item to cart");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-16 items-center justify-between">
-          <Link href="/" className="flex items-center space-x-2">
-            <BookOpen className="h-6 w-6" />
-            <span className="text-xl font-bold">BookHaven</span>
-          </Link>
-          <div className="flex items-center space-x-4">
-            <Button variant="ghost" size="icon">
-              <ShoppingCart className="h-5 w-5" />
-            </Button>
-            <Button>Sign In</Button>
-          </div>
-        </div>
-      </header>
-
+      <Header />
       <main className="container px-4 py-8">
         {/* Breadcrumb */}
         <nav className="mb-8 flex items-center space-x-2 text-sm text-muted-foreground">
@@ -72,11 +93,11 @@ export default function BookDetail() {
             Home
           </Link>
           <ChevronRight className="h-4 w-4" />
-          <Link href="/books" className="hover:text-foreground">
+          <Link href="/user/search" className="hover:text-foreground">
             Books
           </Link>
           <ChevronRight className="h-4 w-4" />
-          <span className="text-foreground">{bookData.title}</span>
+          <span className="text-foreground">{book.title}</span>
         </nav>
 
         {/* Product Section */}
@@ -99,8 +120,8 @@ export default function BookDetail() {
                   className="absolute inset-0"
                 >
                   <Image
-                    src={bookData.images[selectedImage]}
-                    alt={bookData.title}
+                    src={book.images ? book.images[selectedImage] : "/placeholder.svg"}
+                    alt={book.title}
                     fill
                     className="object-cover"
                   />
@@ -119,7 +140,7 @@ export default function BookDetail() {
               </div>
             </motion.div>
             <div className="flex space-x-4 overflow-auto pb-2">
-              {bookData.images.map((image, index) => (
+              {book.images ? book.images.map((image, index) => (
                 <button
                   key={index}
                   onClick={() => setSelectedImage(index)}
@@ -129,27 +150,27 @@ export default function BookDetail() {
                 >
                   <Image
                     src={image}
-                    alt={`${bookData.title} - View ${index + 1}`}
+                    alt={`${book.title} - View ${index + 1}`}
                     fill
                     className="object-cover"
                   />
                 </button>
-              ))}
+              )) : null}
             </div>
           </div>
 
           {/* Product Info */}
           <div className="space-y-6">
             <div className="space-y-2">
-              <h1 className="text-3xl font-bold">{bookData.title}</h1>
-              <p className="text-lg text-muted-foreground">by {bookData.author}</p>
+              <h1 className="text-3xl font-bold">{book.title}</h1>
+              <p className="text-lg text-muted-foreground">by {book.author}</p>
               <div className="flex items-center space-x-2">
                 <div className="flex">
                   {[...Array(5)].map((_, i) => (
                     <Star
                       key={i}
                       className={`h-5 w-5 ${
-                        i < Math.floor(bookData.rating)
+                        i < Math.floor(book.rating)
                           ? "fill-primary text-primary"
                           : "fill-muted text-muted-foreground"
                       }`}
@@ -163,7 +184,7 @@ export default function BookDetail() {
             </div>
 
             <div className="space-y-4">
-              <p className="text-3xl font-bold">${bookData.price}</p>
+              <p className="text-3xl font-bold">${book.price}</p>
               <div className="flex space-x-4">
                 <Select value={quantity} onValueChange={setQuantity}>
                   <SelectTrigger className="w-24">
@@ -177,7 +198,7 @@ export default function BookDetail() {
                     ))}
                   </SelectContent>
                 </Select>
-                <Button className="flex-1">
+                <Button onClick={handleCart} className="flex-1">
                   <ShoppingCart className="mr-2 h-4 w-4" />
                   Add to Cart
                 </Button>

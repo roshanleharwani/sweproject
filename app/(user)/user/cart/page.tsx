@@ -11,38 +11,71 @@ import { Minus, Plus, Trash2, CreditCard, Truck } from 'lucide-react'
 
 import Image from "next/image"
 import { motion } from "framer-motion"
-import { useState } from "react"
+import { useState,useEffect } from "react"
 
 export default function CartPage() {
   const [step, setStep] = useState<'cart' | 'checkout'>('cart')
-  
-  // Sample cart items
-  const cartItems = [
-    {
-      id: 1,
-      title: "The Art of Programming",
-      author: "John Smith",
-      price: 29.99,
-      quantity: 1,
-      image: "/placeholder.svg"
-    },
-    {
-      id: 2,
-      title: "Business Leadership",
-      author: "Sarah Johnson",
-      price: 24.99,
-      quantity: 2,
-      image: "/placeholder.svg"
-    }
-  ]
+  interface CartItem {
+    _id: string;
+    title: string;
+    author: string;
+    price: number;
+    qty: number;
+  }
 
-  const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0)
-  const shipping = 4.99
+  const [items, setItems] = useState<CartItem[]>([])
+  
+  useEffect(() => {
+    const fetchCartItems = async () => {
+      try {
+        const res = await fetch('/api/cart')
+        if (res.ok) {
+          const data = await res.json()
+          setItems(data)
+        }
+      } catch (error) {
+        console.error('Error fetching cart items:', error)
+      }
+    }
+    fetchCartItems()
+  }, [])
+
+  const updateItemQuantity = async (itemId: string, newQty: number) => {
+    if (newQty < 1) return
+    try {
+      const res = await fetch(`/api/cart/${itemId}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ qty: newQty }),
+        headers: { 'Content-Type': 'application/json' }
+      })
+      if (res.ok) {
+        setItems(items.map(item => 
+          item._id === itemId ? { ...item, qty: newQty } : item
+        ))
+      }
+    } catch (error) {
+      console.error('Error updating quantity:', error)
+    }
+  }
+
+  const removeItem = async (itemId: string) => {
+    try {
+      const res = await fetch(`/api/cart/${itemId}`, {
+        method: 'DELETE'
+      })
+      if (res.ok) {
+        setItems(items.filter(item => item._id !== itemId))
+      }
+    } catch (error) {
+      console.error('Error removing item:', error)
+    }
+  }
+
+  const subtotal = items.reduce((sum, item) => sum + (item.price * item.qty), 0)
+  const shipping = items.length > 0 ? 4.99 : 0
   const total = subtotal + shipping
 
   return (
-
-      
       <main className="container py-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -57,7 +90,7 @@ export default function CartPage() {
             </h1>
             <p className="text-muted-foreground">
               {step === 'cart' 
-                ? `${cartItems.length} items in your cart`
+                ? `${items.length} items in your cart`
                 : 'Complete your purchase'
               }
             </p>
@@ -73,9 +106,9 @@ export default function CartPage() {
                     <CardTitle>Cart Items</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    {cartItems.map((item, index) => (
+                    {items.map((item, index) => (
                       <motion.div
-                        key={item.id}
+                        key={item._id}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.5, delay: index * 0.1 }}
@@ -83,7 +116,7 @@ export default function CartPage() {
                         <div className="flex gap-4">
                           <div className="relative h-24 w-16">
                             <Image
-                              src={item.image}
+                              src='/placeholder.svg'
                               alt={item.title}
                               fill
                               className="rounded object-cover"
@@ -96,22 +129,35 @@ export default function CartPage() {
                             </div>
                             <div className="flex items-center justify-between">
                               <div className="flex items-center space-x-2">
-                                <Button variant="outline" size="icon">
+                                <Button 
+                                  variant="outline" 
+                                  size="icon" 
+                                  onClick={() => updateItemQuantity(item._id, item.qty - 1)}
+                                >
                                   <Minus className="h-4 w-4" />
                                 </Button>
-                                <span>{item.quantity}</span>
-                                <Button variant="outline" size="icon">
+                                <span>{item.qty}</span>
+                                <Button 
+                                  variant="outline" 
+                                  size="icon" 
+                                  onClick={() => updateItemQuantity(item._id, item.qty + 1)}
+                                >
                                   <Plus className="h-4 w-4" />
                                 </Button>
                               </div>
-                              <p className="font-semibold">${(item.price * item.quantity).toFixed(2)}</p>
-                              <Button variant="ghost" size="icon" className="text-red-500">
+                              <p className="font-semibold">${(item.price * item.qty).toFixed(2)}</p>
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="text-red-500"
+                                onClick={() => removeItem(item._id)}
+                              >
                                 <Trash2 className="h-4 w-4" />
                               </Button>
                             </div>
                           </div>
                         </div>
-                        {index < cartItems.length - 1 && <Separator className="my-4" />}
+                        {index < items.length - 1 && <Separator className="my-4" />}
                       </motion.div>
                     ))}
                   </CardContent>
@@ -221,7 +267,7 @@ export default function CartPage() {
             </div>
 
             {/* Order Summary */}
-            <div className="lg:col-span-4">
+            {items.length> 0 ? <div className="lg:col-span-4">
               <Card>
                 <CardHeader>
                   <CardTitle>Order Summary</CardTitle>
@@ -269,7 +315,7 @@ export default function CartPage() {
                   )}
                 </CardFooter>
               </Card>
-            </div>
+            </div> : null}
           </div>
         </motion.div>
       </main>
