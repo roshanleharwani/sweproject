@@ -87,7 +87,7 @@ export async function GET(req) {
     }
       const token = generateToken(user);
     // Return success response
-    const response =  NextResponse.json({ message: 'Sign-in successful' }, { status: 200 });
+    const response =  NextResponse.json(token,{ message: 'Sign-in successful' }, { status: 200 });
     
     response.cookies.set('auth-token', token, {
       httpOnly: true,

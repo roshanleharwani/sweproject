@@ -17,6 +17,10 @@ const userOrdersSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  payment:{
+    type: String,
+    required: true,
+  },
   items: [
     {
       title: {
@@ -33,6 +37,32 @@ const userOrdersSchema = new mongoose.Schema({
       },
     },
   ],
+  address: {
+    name:{
+      type: String,
+      required: true,
+    },
+    address:{
+      type: String,
+      required: true,
+    },
+    city:{
+      type: String,
+      required: true,
+    },
+    state:{
+      type: String,
+      required: true,
+    },
+    zip:{
+      type: String,
+      required: true,
+    },
+  },
+  user:{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+  }
 });
 
 export default mongoose.models.UserOrders || mongoose.model('UserOrders', userOrdersSchema);

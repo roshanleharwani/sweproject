@@ -4,7 +4,19 @@ import User from "@/app/models/User";
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 
-export async function POST(request:NextRequest) {
+// Helper function to verify user authentication
+async function verifyAuth(request: NextRequest) {
+  const token = request.cookies.get("auth-token")?.value;
+  if (!token) {
+    return null;
+  }
+
+  const secret = process.env.JWT_SECRET as string;
+  const decoded = jwt.verify(token, secret) as jwt.JwtPayload;
+  return await User.findOne({ email: decoded.email });
+}
+
+export async function POST(request: NextRequest) {
   await connect(); // Ensure database connection is established
   try {
     const { title, author, price, qty } = await request.json();
@@ -73,5 +85,25 @@ export async function GET(request: NextRequest) {
   } catch (err) {
     console.error(err);
     return NextResponse.json({ error: "Error fetching cart items" }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  await connect();
+  try {
+    const user = await verifyAuth(request);
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    await CartItem.deleteMany({ user: user._id });
+
+    return NextResponse.json({ message: "All items deleted successfully" });
+  } catch (err) {
+    console.error(err);
+    return NextResponse.json(
+      { error: "Error deleting cart items" },
+      { status: 500 }
+    );
   }
 }

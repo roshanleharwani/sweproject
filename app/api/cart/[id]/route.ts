@@ -12,8 +12,13 @@ async function verifyAuth(request: NextRequest) {
   }
 
   const secret = process.env.JWT_SECRET as string;
-  const decoded = jwt.verify(token, secret) as jwt.JwtPayload;
-  return await User.findOne({ email: decoded.email });
+  try {
+    const decoded = jwt.verify(token, secret) as jwt.JwtPayload;
+    return await User.findOne({ email: decoded.email });
+  } catch (err) {
+    console.error("JWT verification error:", err);
+    return null;
+  }
 }
 
 export async function PATCH(

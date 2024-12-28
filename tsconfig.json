@@ -28,7 +28,8 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "app/api/users/route.js",
-    "app/(user)/user/search/page.jsx"
+    "app/(user)/user/search/page.jsx",
+    "app/(user)/user/orders/page.jsx"
   ],
   "exclude": ["node_modules"]
 }

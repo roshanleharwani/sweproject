@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client'
 
 import { Button } from "@/components/ui/button"
@@ -7,11 +8,50 @@ import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
-import { Minus, Plus, Trash2, CreditCard, Truck } from 'lucide-react'
+import { Minus, Plus, Trash2, CreditCard, Truck, Banknote } from 'lucide-react'
 
 import Image from "next/image"
 import { motion } from "framer-motion"
 import { useState,useEffect } from "react"
+
+const indianStates = [
+  ["ap", "Andhra Pradesh"],
+  ["ar", "Arunachal Pradesh"],
+  ["as", "Assam"],
+  ["br", "Bihar"],
+  ["cg", "Chhattisgarh"],
+  ["ga", "Goa"],
+  ["gj", "Gujarat"],
+  ["hr", "Haryana"],
+  ["hp", "Himachal Pradesh"],
+  ["jh", "Jharkhand"],
+  ["ka", "Karnataka"],
+  ["kl", "Kerala"],
+  ["mp", "Madhya Pradesh"],
+  ["mh", "Maharashtra"],
+  ["mn", "Manipur"],
+  ["ml", "Meghalaya"],
+  ["mz", "Mizoram"],
+  ["nl", "Nagaland"],
+  ["od", "Odisha"],
+  ["pb", "Punjab"],
+  ["rj", "Rajasthan"],
+  ["sk", "Sikkim"],
+  ["tn", "Tamil Nadu"],
+  ["tg", "Telangana"],
+  ["tr", "Tripura"],
+  ["up", "Uttar Pradesh"],
+  ["uk", "Uttarakhand"],
+  ["wb", "West Bengal"],
+  ["an", "Andaman and Nicobar Islands"],
+  ["ch", "Chandigarh"],
+  ["dn", "Dadra and Nagar Haveli and Daman and Diu"],
+  ["dl", "Delhi"],
+  ["jk", "Jammu and Kashmir"],
+  ["la", "Ladakh"],
+  ["ld", "Lakshadweep"],
+  ["py", "Puducherry"]
+];
 
 export default function CartPage() {
   const [step, setStep] = useState<'cart' | 'checkout'>('cart')
@@ -22,9 +62,18 @@ export default function CartPage() {
     price: number;
     qty: number;
   }
-
+  const [payment,setPayment] = useState('card')
   const [items, setItems] = useState<CartItem[]>([])
-  
+  const [firstName,setFirstName] = useState('')
+  const [lastName,setLastName] = useState('')
+  const [address,setAddress] = useState('')
+  const [city,setCity] = useState('')
+  const [state,setState] = useState('Select State')
+  const [zip,setZip] = useState('')
+  const [cardNumber,setCardNumber] = useState('')
+  const [expMonth,setExpMonth] = useState('')
+  const [expYear,setExpYear] = useState('')
+  const [cvv,setCvv] = useState('')
   useEffect(() => {
     const fetchCartItems = async () => {
       try {
@@ -74,6 +123,52 @@ export default function CartPage() {
   const subtotal = items.reduce((sum, item) => sum + (item.price * item.qty), 0)
   const shipping = items.length > 0 ? 4.99 : 0
   const total = subtotal + shipping
+
+  const handlePlaceOrder = async () => {
+    const orderData = {
+      items: items.map(item => ({
+        _id: item._id,
+        title: item.title,
+        author: item.author,
+        price: item.price,
+        quantity: item.qty // Add quantity field
+      })),
+      address: {
+        name: `${firstName} ${lastName}`,
+        address,
+        city,
+        state,
+        zip
+      },
+      orderId: `12345`, 
+      date: new Date().toLocaleDateString("en-GB"),
+      total: total,
+      payment: payment,
+      status: 'Processing'
+    };
+  
+    try {
+      const res = await fetch('/api/orders', {
+        method: 'POST',
+        body: JSON.stringify(orderData),
+        headers: { 'Content-Type': 'application/json' }
+      });
+  
+      if (res.ok) {
+        // Handle successful order placement
+        await fetch('/api/cart',{
+          method: 'DELETE'
+        });
+
+        console.log('Order placed successfully');
+      } else {
+        // Handle errors
+        console.error('Error placing order:', await res.json());
+      }
+    } catch (error) {
+      console.error('Error placing order:', error);
+    }
+  };
 
   return (
       <main className="container py-8">
@@ -172,44 +267,46 @@ export default function CartPage() {
                     <div className="grid gap-4 md:grid-cols-2">
                       <div className="space-y-2">
                         <Label htmlFor="firstName">First name</Label>
-                        <Input id="firstName" placeholder="John" />
+                        <Input id="firstName" placeholder="John" value={firstName} onChange={(e)=>setFirstName(e.target.value)} />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="lastName">Last name</Label>
-                        <Input id="lastName" placeholder="Doe" />
+                        <Input id="lastName" placeholder="Doe" value={lastName} onChange={(e)=>setLastName(e.target.value)}/>
                       </div>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="address">Street address</Label>
-                      <Input id="address" placeholder="123 Main St" />
+                      <Input id="address" placeholder="123 Main St" value={address} onChange={(e)=>setAddress(e.target.value)}/>
                     </div>
                     <div className="grid gap-4 md:grid-cols-3">
                       <div className="space-y-2">
                         <Label htmlFor="city">City</Label>
-                        <Input id="city" placeholder="City" />
+                        <Input id="city" placeholder="City" value={city} onChange={(e)=>setCity(e.target.value)}/>
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="state">State</Label>
-                        <Select>
+                        <Select onValueChange={(value) => setState(value)}>
                           <SelectTrigger>
                             <SelectValue placeholder="Select state" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="ny">New York</SelectItem>
-                            <SelectItem value="ca">California</SelectItem>
-                            {/* Add more states */}
+                          {indianStates.map(([value, label]) => (
+                                  <SelectItem key={value} value={value}>
+                                    {label}
+                                  </SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="zip">ZIP code</Label>
-                        <Input id="zip" placeholder="12345" />
+                        <Input id="zip" placeholder="12345" value={zip} onChange={(e)=>setZip(e.target.value)}/>
                       </div>
                     </div>
                     <Separator />
                     <div className="space-y-4">
                       <h3 className="font-semibold">Payment Method</h3>
-                      <RadioGroup defaultValue="card">
+                      <RadioGroup value={payment} onValueChange={setPayment}>
                         <div className="flex items-center space-x-2">
                           <RadioGroupItem value="card" id="card" />
                           <Label htmlFor="card" className="flex items-center gap-2">
@@ -217,49 +314,58 @@ export default function CartPage() {
                             Credit Card
                           </Label>
                         </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="cash" id="cash" />
+                          <Label htmlFor="cash" className="flex items-center gap-2">
+                            <Banknote className="h-4 w-4" />
+                            Cash On Delivery
+                          </Label>
+                        </div>
                       </RadioGroup>
-                      <div className="grid gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="cardNumber">Card number</Label>
-                          <Input id="cardNumber" placeholder="1234 5678 9012 3456" />
+                      {payment === 'card' && (
+                        <div className="grid gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="cardNumber">Card number</Label>
+                            <Input id="cardNumber" type="number" placeholder="1234 5678 9012 3456" value={cardNumber} onChange={(e)=>setCardNumber(e.target.value)} />
+                          </div>
+                          <div className="grid gap-4 md:grid-cols-3">
+                            <div className="space-y-2">
+                              <Label htmlFor="expMonth">Expiration Month</Label>
+                              <Select onValueChange={(value) => setExpMonth(value)}>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Month" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {Array.from({ length: 12 }, (_, i) => (
+                                    <SelectItem key={i + 1} value={String(i + 1).padStart(2, '0')}>
+                                      {String(i + 1).padStart(2, '0')}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div className="space-y-2">
+                              <Label htmlFor="expYear">Expiration Year</Label>
+                              <Select onValueChange={(value) => setExpYear(value)}>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Year" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {Array.from({ length: 10 }, (_, i) => (
+                                    <SelectItem key={i} value={String(new Date().getFullYear() + i)}>
+                                      {new Date().getFullYear() + i}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div className="space-y-2">
+                              <Label htmlFor="cvv">CVV</Label>
+                              <Input id="cvv" type="number" placeholder="123" min={100} max={999} onChange={(e)=>setCvv(e.target.value)} value={cvv}/>
+                            </div>
+                          </div>
                         </div>
-                        <div className="grid gap-4 md:grid-cols-3">
-                          <div className="space-y-2">
-                            <Label htmlFor="expMonth">Expiration Month</Label>
-                            <Select>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Month" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {Array.from({ length: 12 }, (_, i) => (
-                                  <SelectItem key={i + 1} value={String(i + 1).padStart(2, '0')}>
-                                    {String(i + 1).padStart(2, '0')}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="expYear">Expiration Year</Label>
-                            <Select>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Year" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {Array.from({ length: 10 }, (_, i) => (
-                                  <SelectItem key={i} value={String(new Date().getFullYear() + i)}>
-                                    {new Date().getFullYear() + i}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="cvv">CVV</Label>
-                            <Input id="cvv" placeholder="123" />
-                          </div>
-                        </div>
-                      </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -301,7 +407,7 @@ export default function CartPage() {
                     </Button>
                   ) : (
                     <div className="space-y-2 w-full">
-                      <Button className="w-full" size="lg">
+                      <Button className="w-full" size="lg" onClick={handlePlaceOrder}>
                         Place Order
                       </Button>
                       <Button 
