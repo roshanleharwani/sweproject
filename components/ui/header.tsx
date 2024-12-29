@@ -6,17 +6,17 @@ import Link from "next/link"
 import { ShoppingCart, BookOpen, LogOut, User} from 'lucide-react'
 import {MobileNav} from "@/components/ui/mobile-nav"
 import { useRouter } from "next/navigation";
+
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuGroup,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
   } from "@/components/ui/dropdown-menu"
 
-  import jwt from 'jsonwebtoken';
 import { useEffect, useState } from "react"
   
   
@@ -44,7 +44,7 @@ function Header() {
     const [name,setName] = useState("");
     const [email,setEmail] = useState("");
 
-    const fetcher = useEffect(() => {
+    useEffect(() => {
       const fetchUserData = async () => {
         try {
           const res = await fetch('/api/payload/');
@@ -64,7 +64,22 @@ function Header() {
     
       fetchUserData();
     }, []);
-    
+    const [items,setItems] = useState()
+    useEffect(() => {
+      const fetcher = async ()=>{
+        try{
+          const res = await fetch('/api/cart/');
+          if(res.ok){
+            const cart = await res.json();
+            setItems(cart.length)
+          }
+        }
+        catch(error){
+          console.error(error);
+        }
+      }
+      fetcher();
+    },[])
 
     return (
     <>
@@ -93,8 +108,9 @@ function Header() {
         </nav>
         <div className="flex items-center space-x-4">
           <Link href={`/user/cart`}>
-            <Button variant="ghost" size="icon">
-              <ShoppingCart className="h-5 w-5" />
+            <Button variant="ghost" size="icon" className="relative   rounded-xl outline-none  ">
+              <ShoppingCart size="lg" className="size-10 hover:bg-gray-200" />
+              {items ? <div className="absolute size-4 bg-red-500 top-0 right-0 rounded-full text-xs text-white ">{items}</div> : null}
             </Button>
           </Link>
           <DropdownMenu>

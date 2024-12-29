@@ -162,7 +162,7 @@ export default function Orders() {
                         </div>
                       </TableCell>
                       <TableCell>{order.date}</TableCell>
-                      <TableCell>{order.total}</TableCell>
+                      <TableCell>$ {order.total}</TableCell>
                       <TableCell>
                         <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
                           order.status === "Delivered" ? "bg-green-100 text-green-700" :
@@ -241,7 +241,7 @@ export default function Orders() {
                       ))}
                       <div className="flex justify-between border-t pt-4">
                         <p className="font-medium">Total</p>
-                        <p className="font-medium">{selectedOrder.total}</p>
+                        <p className="font-medium">$ {selectedOrder.total}</p>
                       </div>
                     </div>
                   </CardContent>
@@ -258,7 +258,7 @@ export default function Orders() {
                     <p className="text-sm text-muted-foreground">
                       {selectedOrder.address.address}
                       <br />
-                      {selectedOrder.address.city}, {selectedOrder.address.state} {selectedOrder.address.zip}
+                      {selectedOrder.address.city}, {selectedOrder.address.state.upperCase} {selectedOrder.address.zip}
                       <br />
                       India
                     </p>

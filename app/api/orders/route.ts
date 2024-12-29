@@ -28,20 +28,21 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    const { items, address, orderId, date, total, status } = await request.json();
+    const { items, address, orderId, date, total, status,payment } = await request.json();
 
-    if (!items || !address || !orderId || !date || !total || !status) {
+    if (!items || !address || !orderId || !date || !total || !status || !payment) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
-
+    const Total = total.toFixed(2);
     const order = new UserOrders({
       user: user._id,
       items:items,
       address,
       orderId: orderId,
       date,
-      total,
-      status
+      total:Total,
+      status,
+      payment
     });
 
     await order.save();

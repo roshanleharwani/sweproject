@@ -9,7 +9,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
 import { Minus, Plus, Trash2, CreditCard, Truck, Banknote } from 'lucide-react'
-
+import {useRouter} from 'next/navigation'
 import Image from "next/image"
 import { motion } from "framer-motion"
 import { useState,useEffect } from "react"
@@ -55,6 +55,7 @@ const indianStates = [
 
 export default function CartPage() {
   const [step, setStep] = useState<'cart' | 'checkout'>('cart')
+  const router = useRouter();
   interface CartItem {
     _id: string;
     title: string;
@@ -123,7 +124,7 @@ export default function CartPage() {
   const subtotal = items.reduce((sum, item) => sum + (item.price * item.qty), 0)
   const shipping = items.length > 0 ? 4.99 : 0
   const total = subtotal + shipping
-
+  const State = state.toUpperCase()
   const handlePlaceOrder = async () => {
     const orderData = {
       items: items.map(item => ({
@@ -137,7 +138,7 @@ export default function CartPage() {
         name: `${firstName} ${lastName}`,
         address,
         city,
-        state,
+        state:State,
         zip
       },
       orderId: `12345`, 
@@ -160,7 +161,7 @@ export default function CartPage() {
           method: 'DELETE'
         });
 
-        console.log('Order placed successfully');
+        router.push('/user/order-success')
       } else {
         // Handle errors
         console.error('Error placing order:', await res.json());

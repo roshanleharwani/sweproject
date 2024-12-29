@@ -19,7 +19,6 @@ export async function middleware(req: NextRequest) {
       if (req.nextUrl.pathname === '/sign-in' || req.nextUrl.pathname === '/sign-up') {
         return NextResponse.redirect(new URL('/user/home', req.url));
       }
-      console.log('middleware')
       return NextResponse.next(); // Proceed to the requested page
     } catch (err:any) {
       console.error('Invalid Token:', err);
