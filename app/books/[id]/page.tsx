@@ -4,7 +4,7 @@ import Header from '@/components/ui/header'
 import { useEffect, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
-import { BookOpen, Heart, ShoppingCart, Star, ChevronRight, ChevronLeft } from 'lucide-react'
+import {  Heart, ShoppingCart, Star, ChevronRight } from 'lucide-react'
 import Link from "next/link"
 import Image from "next/image"
 import {

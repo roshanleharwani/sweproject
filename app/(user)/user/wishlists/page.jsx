@@ -17,48 +17,48 @@ import Link from "next/link"
 
 export default function WishlistPage() {
   // Sample wishlist data
-  const wishlistItems = [
-    {
-      id: 1,
-      title: "The Art of Programming",
-      author: "John Smith",
-      price: 29.99,
-      originalPrice: 34.99,
-      stock: "In Stock",
-      dateAdded: "Dec 20, 2023",
-      image: "/placeholder.svg"
-    },
-    {
-      id: 2,
-      title: "Business Leadership",
-      author: "Sarah Johnson",
-      price: 24.99,
-      originalPrice: 29.99,
-      stock: "Low Stock",
-      dateAdded: "Dec 21, 2023",
-      image: "/placeholder.svg"
-    },
-    {
-      id: 3,
-      title: "The Great Adventure",
-      author: "Michael Brown",
-      price: 19.99,
-      originalPrice: 19.99,
-      stock: "In Stock",
-      dateAdded: "Dec 22, 2023",
-      image: "/placeholder.svg"
-    },
-    {
-      id: 4,
-      title: "Mystery Manor",
-      author: "Emily Wilson",
-      price: 22.99,
-      originalPrice: 27.99,
-      stock: "Out of Stock",
-      dateAdded: "Dec 23, 2023",
-      image: "/placeholder.svg"
-    }
-  ]
+  const wishlistItems = []
+    // {
+    //   id: 1,
+    //   title: "The Art of Programming",
+    //   author: "John Smith",
+    //   price: 29.99,
+    //   originalPrice: 34.99,
+    //   stock: "In Stock",
+    //   dateAdded: "Dec 20, 2023",
+    //   image: "/placeholder.svg"
+    // },
+    // {
+    //   id: 2,
+    //   title: "Business Leadership",
+    //   author: "Sarah Johnson",
+    //   price: 24.99,
+    //   originalPrice: 29.99,
+    //   stock: "Low Stock",
+    //   dateAdded: "Dec 21, 2023",
+    //   image: "/placeholder.svg"
+    // },
+    // {
+    //   id: 3,
+    //   title: "The Great Adventure",
+    //   author: "Michael Brown",
+    //   price: 19.99,
+    //   originalPrice: 19.99,
+    //   stock: "In Stock",
+    //   dateAdded: "Dec 22, 2023",
+    //   image: "/placeholder.svg"
+    // },
+    // {
+    //   id: 4,
+    //   title: "Mystery Manor",
+    //   author: "Emily Wilson",
+    //   price: 22.99,
+    //   originalPrice: 27.99,
+    //   stock: "Out of Stock",
+    //   dateAdded: "Dec 23, 2023",
+    //   image: "/placeholder.svg"
+    // }
+  
 
   return (
     
@@ -179,7 +179,7 @@ export default function WishlistPage() {
                 {"Start adding books you'd like to purchase in the future"}
               </p>
               <Button asChild>
-                <Link href="/search">Browse Books</Link>
+                <Link href="/user/search">Browse Books</Link>
               </Button>
             </motion.div>
           )}

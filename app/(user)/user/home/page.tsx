@@ -4,10 +4,39 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ShoppingCart, Package, Heart, TrendingUp, MapPin, Clock, BadgeCheck } from 'lucide-react'
 import Image from "next/image"
 import { motion } from "framer-motion"
-
+import { useEffect,useState } from "react"
 export default function Dashboard() {
+     const [totalOrders, setTotalOrders] = useState(0);
+  const [transitOrder, setTransitOrder] = useState(0);
+
+  useEffect(() => {
+    const fetcher = async () => {
+      try {
+        const response = await fetch('/api/orders');
+        
+        if (!response.ok) {
+          throw new Error("Failed to fetch orders");
+        }
+
+        const data = await response.json();
+        
+        // Ensure the data is an array before using length or filter
+        if (Array.isArray(data)) {
+          setTotalOrders(data.length);
+          setTransitOrder(data.filter((order) => order.status === 'In Transit').length);
+        } else {
+          console.error("Invalid data format: data is not an array");
+        }
+      } catch (error) {
+        console.error("Error fetching orders:", error);
+      }
+    };
+
+    fetcher();
+  }, []);
+  
   return (
-    
+
 
       <main className="container py-8">
         {/* Welcome Section */}
@@ -23,29 +52,69 @@ export default function Dashboard() {
 
         {/* Stats Grid */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
-          {[
-            { title: "Total Orders", value: "8", icon: ShoppingCart, color: "text-blue-500" },
-            { title: "In Transit", value: "2", icon: Package, color: "text-orange-500" },
-            { title: "Wishlist Items", value: "15", icon: Heart, color: "text-red-500" },
-            { title: "Savings", value: "$45.99", icon: TrendingUp, color: "text-green-500" },
-          ].map((stat, index) => (
             <motion.div
-              key={stat.title}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
             >
-              <Card>
-                <CardContent className="flex items-center p-6">
-                  <stat.icon className={`h-8 w-8 ${stat.color}`} />
-                  <div className="ml-4">
-                    <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
-                    <h3 className="text-2xl font-bold">{stat.value}</h3>
-                  </div>
-                </CardContent>
-              </Card>
+            <Card>
+              <CardContent className="flex items-center p-6">
+              <ShoppingCart className="h-8 w-8 text-blue-500" />
+              <div className="ml-4">
+                <p className="text-sm font-medium text-muted-foreground">Total Orders</p>
+                <h3 className="text-2xl font-bold">{totalOrders}</h3>
+              </div>
+              </CardContent>
+            </Card>
             </motion.div>
-          ))}
+
+            <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            >
+            <Card>
+              <CardContent className="flex items-center p-6">
+              <Package className="h-8 w-8 text-orange-500" />
+              <div className="ml-4">
+                <p className="text-sm font-medium text-muted-foreground">In Transit</p>
+                <h3 className="text-2xl font-bold">{transitOrder}</h3>
+              </div>
+              </CardContent>
+            </Card>
+            </motion.div>
+
+            <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            >
+            <Card>
+              <CardContent className="flex items-center p-6">
+              <Heart className="h-8 w-8 text-red-500" />
+              <div className="ml-4">
+                <p className="text-sm font-medium text-muted-foreground">Wishlist Items</p>
+                <h3 className="text-2xl font-bold">0</h3>
+              </div>
+              </CardContent>
+            </Card>
+            </motion.div>
+
+            <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            >
+            <Card>
+              <CardContent className="flex items-center p-6">
+              <TrendingUp className="h-8 w-8 text-green-500" />
+              <div className="ml-4">
+                <p className="text-sm font-medium text-muted-foreground">Savings</p>
+                <h3 className="text-2xl font-bold">$ 0</h3>
+              </div>
+              </CardContent>
+            </Card>
+            </motion.div>
         </div>
 
         {/* Recent Orders and Recommendations */}

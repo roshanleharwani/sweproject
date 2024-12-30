@@ -37,6 +37,7 @@ export async function POST(req) {
       lastName,
       email,
       password: hash,
+      resetToken: "",
     };
 
     // Create the user in the database

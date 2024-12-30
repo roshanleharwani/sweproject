@@ -29,7 +29,11 @@
     ".next/types/**/*.ts",
     "app/api/users/route.js",
     "app/(user)/user/search/page.jsx",
-    "app/(user)/user/orders/page.jsx"
+    "app/(user)/user/orders/page.jsx",
+    "app/api/signout/route.js",
+    "app/(user)/user/wishlists/page.jsx",
+    "app/(user)/user/home/page.jsx",
+    "app/reset-password/[id]/page.jsx"
   ],
   "exclude": ["node_modules"]
 }

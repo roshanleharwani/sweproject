@@ -25,7 +25,7 @@ function Header() {
     const handleLogout = async (e:{ preventDefault: () => void }) => {
       e.preventDefault();
       try{
-        const res = await fetch('/api/signout', {
+        const res = await fetch('/api/signout/', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' }
         });
@@ -93,16 +93,16 @@ function Header() {
           </Link>
         </div>
         <nav className="hidden md:flex items-center space-x-6">
-          <Link href="/user/home" className="text-sm font-medium text-primary">
+          <Link href="/user/home" className="text-sm font-medium text-primary hover:bg-gray-200 p-2 rounded-2xl duration-300 ">
             Home
           </Link>
-          <Link href="/user/orders" className="text-sm font-medium hover:text-primary">
+          <Link href="/user/orders" className="text-sm font-medium hover:text-primary hover:bg-gray-200 p-2 rounded-2xl duration-300 ">
             My Orders
           </Link>
-          <Link href="/user/search" className="text-sm font-medium hover:text-primary">
+          <Link href="/user/search" className="text-sm font-medium hover:text-primary hover:bg-gray-200 p-2 rounded-2xl duration-300 ">
             Search Books
           </Link>
-          <Link href="/user/wishlists" className="text-sm font-medium hover:text-primary">
+          <Link href="/user/wishlists" className="text-sm font-medium hover:text-primary hover:bg-gray-200 p-2 rounded-2xl duration-300 ">
             Wishlists
           </Link>
         </nav>
