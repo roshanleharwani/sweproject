@@ -19,7 +19,7 @@ async function verifyAuth(request: NextRequest) {
 export async function POST(request: NextRequest) {
   await connect(); // Ensure database connection is established
   try {
-    const { title, author, price, qty } = await request.json();
+    const { bookId, title, author, price, qty } = await request.json();
 
     // Extract and verify the token from cookies
     const token = request.cookies.get("auth-token")?.value;
@@ -47,6 +47,7 @@ export async function POST(request: NextRequest) {
 
     // Create a new cart item
     const cartItem = new CartItem({
+      bookId,
       title,
       author,
       price,

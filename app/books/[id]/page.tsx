@@ -49,6 +49,7 @@ export default function BookDetail() {
   
   const router = useRouter();
   const [book, setBook] = useState(bookData)
+  const id = window.location.pathname.split('/').pop();
   useEffect(() => {
     async function fetchBook() {
       const id = window.location.pathname.split('/').pop();
@@ -120,7 +121,7 @@ export default function BookDetail() {
                   className="absolute inset-0"
                 >
                   <Image
-                    src={book.images ? book.images[selectedImage] : "/placeholder.svg"}
+                    src={book.images ? book.images[selectedImage] : `/BookCovers/${id}.png`}
                     alt={book.title}
                     fill
                     className="object-cover"

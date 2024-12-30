@@ -148,7 +148,7 @@ export default function Orders() {
                             <div key={index} className="flex items-center gap-2">
                               <div className="relative h-8 w-6">
                                 <Image
-                                  src="/placeholder.svg"
+                                  src={`/BookCovers/${item.bookId}.png`}
                                   alt={item.title}
                                   fill
                                   className="rounded object-cover"
@@ -223,7 +223,7 @@ export default function Orders() {
                           <div className="flex items-center gap-4">
                             <div className="relative h-16 w-12">
                               <Image
-                                src="/placeholder.svg"
+                                src={`/BookCovers/${item.bookId}.png`}
                                 alt={item.title}
                                 fill
                                 className="rounded object-cover"

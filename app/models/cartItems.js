@@ -5,6 +5,10 @@ const CartItemSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  bookId:{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Book',
+  },
   author: {
     type: String,
     required: true,

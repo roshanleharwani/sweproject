@@ -58,6 +58,7 @@ export default function CartPage() {
   const router = useRouter();
   interface CartItem {
     _id: string;
+    bookId:string,
     title: string;
     author: string;
     price: number;
@@ -75,10 +76,11 @@ export default function CartPage() {
   const [expMonth,setExpMonth] = useState('')
   const [expYear,setExpYear] = useState('')
   const [cvv,setCvv] = useState('')
+  
   useEffect(() => {
     const fetchCartItems = async () => {
       try {
-        const res = await fetch('/api/cart')
+        const res = await fetch('/api/cart/')
         if (res.ok) {
           const data = await res.json()
           setItems(data)
@@ -129,6 +131,7 @@ export default function CartPage() {
     const orderData = {
       items: items.map(item => ({
         _id: item._id,
+        bookId:item.bookId,
         title: item.title,
         author: item.author,
         price: item.price,
@@ -212,7 +215,7 @@ export default function CartPage() {
                         <div className="flex gap-4">
                           <div className="relative h-24 w-16">
                             <Image
-                              src='/placeholder.svg'
+                              src={`/BookCovers/${item.bookId}.png`}
                               alt={item.title}
                               fill
                               className="rounded object-cover"

@@ -6,8 +6,16 @@ import Image from "next/image"
 import { motion } from "framer-motion"
 import { useEffect,useState } from "react"
 export default function Dashboard() {
-     const [totalOrders, setTotalOrders] = useState(0);
+
+  const sampleBooks = [
+    { title: "The Great Adventure", price: "$19.99", qty: 5 ,_id:""},
+    { title: "Mystery Manor", price: "$24.99", qty: 12 ,_id:""},
+    { title: "Business Success", price: "$29.99", qty: 10 ,_id:""},
+    { title: "Cooking Mastery", price: "$34.99", qty: 20 ,_id:""},
+  ]
+  const [totalOrders, setTotalOrders] = useState(0);
   const [transitOrder, setTransitOrder] = useState(0);
+  const [books, setBooks] = useState(sampleBooks)
 
   useEffect(() => {
     const fetcher = async () => {
@@ -34,6 +42,24 @@ export default function Dashboard() {
 
     fetcher();
   }, []);
+
+ 
+
+  useEffect(() => {
+    const fetcher = async () => {
+      try{
+        const response = await fetch('/api/books/random');
+        if (!response.ok) {
+          console.error("Error fetching random books")
+        }
+        const data = await response.json();
+        setBooks(data)
+      }catch (error) {
+        console.error("Error fetching random books:", error);
+      }
+    }
+    fetcher();
+  },[])
   
   return (
 
@@ -176,16 +202,11 @@ export default function Dashboard() {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 gap-4">
-                  {[
-                    { title: "The Great Adventure", price: "$19.99", stock: "In Stock" },
-                    { title: "Mystery Manor", price: "$24.99", stock: "Low Stock" },
-                    { title: "Business Success", price: "$29.99", stock: "In Stock" },
-                    { title: "Cooking Mastery", price: "$34.99", stock: "Pre-order" },
-                  ].map((book, index) => (
+                  {books.map((book, index) => (
                     <div key={index} className="space-y-2">
                       <div className="relative aspect-[3/4]">
                         <Image
-                          src="/placeholder.svg"
+                          src={`/BookCovers/${book._id}.png` || '/placeholder.svg'}
                           alt={book.title}
                           fill
                           className="rounded object-cover"
@@ -195,11 +216,11 @@ export default function Dashboard() {
                       <div className="flex items-center justify-between text-sm">
                         <span className="font-bold">{book.price}</span>
                         <span className={`text-xs ${
-                          book.stock === "In Stock" ? "text-green-500" :
-                          book.stock === "Low Stock" ? "text-orange-500" :
+                          book.qty > 10 ? "text-green-500" :
+                          book.qty <= 10 ? "text-orange-500" :
                           "text-blue-500"
                         }`}>
-                          {book.stock}
+                          {book.qty > 10 ? "In-Stock":`${book.qty} remaining`}
                         </span>
                       </div>
                     </div>
