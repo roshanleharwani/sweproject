@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-async-client-component */
 'use client'
 
 import { Button } from "@/components/ui/button"
@@ -11,12 +10,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Slider } from "@/components/ui/slider"
+import { RangeSlider } from "@/components/ui/slider"
 import { Search, Filter, SortAsc } from 'lucide-react'
 import { motion } from "framer-motion"
 import Image from "next/image"
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
+import stringSimilarity from 'string-similarity'
 
 export default function SearchPage() {
   const [priceRange, setPriceRange] = useState([0, 100])
@@ -25,6 +25,7 @@ export default function SearchPage() {
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [order, setOrder] = useState('relevance')
   const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("")
 
   const sortBooks = (booksToSort, sortOrder) => {
     const sorted = [...booksToSort];
@@ -39,6 +40,7 @@ export default function SearchPage() {
   };
 
   const router = useRouter();
+
   useEffect(() => {
     async function fetchBooks() {
       const response = await fetch('/api/books/fetchbooks/')
@@ -49,8 +51,28 @@ export default function SearchPage() {
     fetchBooks()
   }, [])
 
+  // New search and filter effect
   useEffect(() => {
     let filtered = [...books];
+    
+    // Apply search term filter with string similarity
+    if (searchTerm.trim()) {
+      filtered = filtered.filter(book => {
+        const searchTermLower = searchTerm.toLowerCase();
+        const titleSimilarity = stringSimilarity.compareTwoStrings(
+          book.title.toLowerCase(),
+          searchTermLower
+        );
+        const authorSimilarity = stringSimilarity.compareTwoStrings(
+          book.author.toLowerCase(),
+          searchTermLower
+        );
+        // Consider a match if similarity is greater than 0.3 (30% similar)
+        return titleSimilarity > 0.3 || authorSimilarity > 0.3 || 
+               book.title.toLowerCase().includes(searchTermLower) ||
+               book.author.toLowerCase().includes(searchTermLower);
+      });
+    }
     
     // Apply category filter
     if (selectedCategory !== 'all') {
@@ -68,13 +90,11 @@ export default function SearchPage() {
     filtered = sortBooks(filtered, order);
     
     setFilteredBooks(filtered);
-  }, [selectedCategory, books, priceRange, order]);
-
+  }, [searchTerm, selectedCategory, books, priceRange, order]);
 
   const redirect = (bookId) => {
     router.push(`/books/${bookId}`);
   };
-  
 
   const handleCart = async (book, e) => {
     e.stopPropagation(); // Prevent redirect when clicking Add to Cart
@@ -90,12 +110,11 @@ export default function SearchPage() {
           title: book.title, 
           author: book.author, 
           price: book.price, 
-          qty: 1, // Default quantity when adding from search
+          qty: 1,
         }),
       });
 
       if (response.ok) {
-        // Optional: Show success message
         router.push('/user/cart');
       } else {
         const errorData = await response.json();
@@ -109,7 +128,6 @@ export default function SearchPage() {
     }
   };
 
-  // Sample categories for demonstration
   const categories = [
     "Fiction",
     "Non-Fiction",
@@ -143,11 +161,13 @@ export default function SearchPage() {
               <div className="flex gap-4">
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input placeholder="Search by title, author, or ISBN..." className="pl-9" />
+                  <Input 
+                    placeholder="Search by title or author..." 
+                    className="pl-9" 
+                    value={searchTerm} 
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
                 </div>
-                <Button>
-                  Search
-                </Button>
               </div>
 
               {/* Filters */}
@@ -174,7 +194,7 @@ export default function SearchPage() {
                   <div className="flex items-center gap-4">
                     <span className="text-sm">Price Range: ${priceRange[0]} - ${priceRange[1]}</span>
                     <div className="w-[200px]">
-                      <Slider
+                      <RangeSlider
                         defaultValue={[0, 100]}
                         max={100}
                         step={1}
@@ -211,7 +231,7 @@ export default function SearchPage() {
               transition={{ duration: 0.5, delay: index * 0.1 }}
               onClick={() => redirect(book._id)} 
             >
-              <Card className="group overflow-hidden" >
+              <Card className="group overflow-hidden">
                 <CardContent className="p-0">
                   <div className="relative aspect-[3/4]">
                     <Image
