@@ -33,7 +33,9 @@
     "app/api/signout/route.js",
     "app/(user)/user/wishlists/page.jsx",
     "app/(user)/user/home/page.jsx",
-    "app/reset-password/[id]/page.jsx"
+    "app/reset-password/[id]/page.jsx",
+    "app/api/wishlist/route.js",
+    "app/api/wishlist/route.js"
   ],
   "exclude": ["node_modules"]
 }

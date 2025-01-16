@@ -1,9 +1,10 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+
 'use client'
 import Header from '@/components/ui/header'
 import { useEffect, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
+import { useToast } from "@/hooks/use-toast"
 import {  Heart, ShoppingCart, Star, ChevronRight } from 'lucide-react'
 import Link from "next/link"
 import Image from "next/image"
@@ -18,6 +19,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {useRouter} from "next/navigation"
 // This would come from your API/database
 const bookData = {
+  category:"Self-Help",
+  qty:10,
   id: "1",
   title: "",
   author: "",
@@ -25,7 +28,7 @@ const bookData = {
   rating: 0.0,
   reviews: 128,
   description: `
-    The Great Gatsby, F. Scott Fitzgerald's third book, stands as the supreme achievement of his career. This exemplary novel of the Jazz Age has been acclaimed by generations of readers. The story is of the fabulously wealthy Jay Gatsby and his new love for the beautiful Daisy Buchanan, of lavish parties on Long Island at a time when The New York Times noted "gin was the national drink and sex the national obsession," it is an exquisitely crafted tale of America in the 1920s.
+  The Great Gatsby, F. Scott Fitzgerald's third book, stands as the supreme achievement of his career. This exemplary novel of the Jazz Age has been acclaimed by generations of readers. The story is of the fabulously wealthy Jay Gatsby and his new love for the beautiful Daisy Buchanan, of lavish parties on Long Island at a time when The New York Times noted "gin was the national drink and sex the national obsession," it is an exquisitely crafted tale of America in the 1920s.
   `,
   details: {
     publisher: "Scribner",
@@ -49,6 +52,7 @@ export default function BookDetail() {
   
   const router = useRouter();
   const [book, setBook] = useState(bookData)
+  const [wishedBook, setWishedBook] = useState(false)
   const id = window.location.pathname.split('/').pop();
   useEffect(() => {
     async function fetchBook() {
@@ -59,13 +63,25 @@ export default function BookDetail() {
     }
     fetchBook();
   }, [])
+  
 
+  useEffect(()=>{
+    async function fetcher(){
+      const response = await fetch(`/api/wishlist/${id}`)
+      if(response.ok){
+        setWishedBook(true)
+      }
+    }
+    fetcher()
+  },)
+  const { toast } = useToast()
   const handleCart = async () => {
     try {
       const response = await fetch('/api/cart/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
+          bookId:id,
           title: book.title, 
           author: book.author, 
           price: book.price, 
@@ -83,7 +99,71 @@ export default function BookDetail() {
       alert("An error occurred while adding item to cart");
     }
   };
-
+  const handleWishlist = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      // Check if the item exists in the wishlist
+      const check = await fetch(`/api/wishlist/${id}`);
+      if (check.ok) {
+        const { _id } = await check.json();
+        const itemId = _id;
+        console.log("Item found in wishlist, deleting:", itemId);
+  
+        // Attempt to delete the item
+        const res = await fetch("/api/wishlist/", {
+          body: JSON.stringify({ itemId }),
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' }
+        });
+  
+        if (res.ok) {
+          console.log("Successfully deleted item from wishlist.");
+          setWishedBook(false);
+          return;
+          // Update state after successful deletion
+        } else {
+          const errorData = await res.json();
+          console.error("Error deleting item:", errorData.message);
+          alert(errorData.message || "Error removing item from wishlist");
+          return;
+        }
+      } else {
+        console.log("Item not found in wishlist.");
+      }
+  
+      // If not found, add the item to the wishlist
+      const response = await fetch('/api/wishlist/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          bookId: id,
+          title: book.title,
+          author: book.author,
+          price: book.price,
+          stock: book.qty > 10 ? "In-Stock" : "Low-Stock",
+          category: book.category
+        }),
+      });
+  
+      if (response.ok) {
+        console.log("Successfully added item to wishlist.");
+        toast({
+          title: "Book added to Wishlist",
+          duration: 5000,
+          className: "bg-white font-bold font-['Space_Grotesk'] text-black border-2 border-black "
+        });
+        setWishedBook(true);
+      } else {
+        const errorData = await response.json();
+        console.error("Error adding item to wishlist:", errorData.message);
+        alert(errorData.message || "Error adding item to wishlist");
+      }
+    } catch (err) {
+      console.error("An unexpected error occurred while processing wishlist:", err);
+      alert("An error occurred while processing wishlist.");
+    }
+  };
+  
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -203,8 +283,8 @@ export default function BookDetail() {
                   <ShoppingCart className="mr-2 h-4 w-4" />
                   Add to Cart
                 </Button>
-                <Button variant="outline" size="icon">
-                  <Heart className="h-4 w-4" />
+                <Button onClick={handleWishlist} variant="outline" size="icon">
+                  {wishedBook ? <Heart fill='red' className="h-4 w-4" />:<Heart  className="h-4 w-4" />}
                 </Button>
               </div>
             </div>
