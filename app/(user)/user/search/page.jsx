@@ -17,7 +17,7 @@ import Image from "next/image"
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import stringSimilarity from 'string-similarity'
-
+import {toast} from 'react-hot-toast'
 export default function SearchPage() {
   const [priceRange, setPriceRange] = useState([0, 100])
   const [books, setBooks] = useState([])
@@ -115,14 +115,15 @@ export default function SearchPage() {
       });
 
       if (response.ok) {
+        toast.success("Item added to cart")
         router.push('/user/cart');
       } else {
         const errorData = await response.json();
-        alert(errorData.message || "Error adding item to cart");
+        toast.error("Error occurred while adding item to cart")
       }
     } catch (err) {
       console.error("An error occurred while adding item to cart", err);
-      alert("An error occurred while adding item to cart");
+      toast.error("Error occurred while adding item to cart")
     } finally {
       setIsAddingToCart(false);
     }

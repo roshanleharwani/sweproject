@@ -1,26 +1,25 @@
-
-'use client'
-import Header from '@/components/ui/header'
-import { useEffect, useState } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { Button } from "@/components/ui/button"
-import { useToast } from "@/hooks/use-toast"
-import {  Heart, ShoppingCart, Star, ChevronRight } from 'lucide-react'
-import Link from "next/link"
-import Image from "next/image"
+"use client";
+import Header from "@/components/ui/header";
+import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { toast } from "react-hot-toast";
+import { Heart, ShoppingCart, Star, ChevronRight } from "lucide-react";
+import Link from "next/link";
+import Image from "next/image";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import {useRouter} from "next/navigation"
+} from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useRouter } from "next/navigation";
 // This would come from your API/database
 const bookData = {
-  category:"Self-Help",
-  qty:10,
+  category: "Self-Help",
+  qty: 10,
   id: "1",
   title: "",
   author: "",
@@ -43,60 +42,59 @@ const bookData = {
     "/placeholder.svg",
     "/placeholder.svg",
   ],
-  
-}
+};
 
 export default function BookDetail() {
-  const [selectedImage, setSelectedImage] = useState(0)
-  const [quantity, setQuantity] = useState("1")
-  
+  const [selectedImage, setSelectedImage] = useState(0);
+  const [quantity, setQuantity] = useState("1");
+
   const router = useRouter();
-  const [book, setBook] = useState(bookData)
-  const [wishedBook, setWishedBook] = useState(false)
-  const id = window.location.pathname.split('/').pop();
+  const [book, setBook] = useState(bookData);
+  const [wishedBook, setWishedBook] = useState(false);
+  const id = window.location.pathname.split("/").pop();
   useEffect(() => {
     async function fetchBook() {
-      const id = window.location.pathname.split('/').pop();
+      const id = window.location.pathname.split("/").pop();
       const response = await fetch(`/api/books/fetchOne?id=${id}`);
       const data = await response.json();
       setBook(data);
     }
     fetchBook();
-  }, [])
-  
+  }, []);
 
-  useEffect(()=>{
-    async function fetcher(){
-      const response = await fetch(`/api/wishlist/${id}`)
-      if(response.ok){
-        setWishedBook(true)
+  useEffect(() => {
+    async function fetcher() {
+      const response = await fetch(`/api/wishlist/${id}`);
+      if (response.ok) {
+        setWishedBook(true);
       }
     }
-    fetcher()
-  },)
-  const { toast } = useToast()
+    fetcher();
+  });
+
   const handleCart = async () => {
     try {
-      const response = await fetch('/api/cart/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          bookId:id,
-          title: book.title, 
-          author: book.author, 
-          price: book.price, 
-          qty: parseInt(quantity), 
+      const response = await fetch("/api/cart/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          bookId: id,
+          title: book.title,
+          author: book.author,
+          price: book.price,
+          qty: parseInt(quantity),
         }),
       });
       if (response.ok) {
-        router.push('/user/cart');
+        router.push("/user/cart");
+        setTimeout(() => {
+          toast.success("Item added to cart successfully");
+        }, 1000); // Delay of 1 second
       } else {
-        const errorData = await response.json();
-        alert(errorData.message || "Error adding item to cart");
       }
     } catch (err) {
       console.error("An error occurred while adding item to cart", err);
-      alert("An error occurred while adding item to cart");
+      toast.error("Error occurred while adding item to cart");
     }
   };
   const handleWishlist = async (e: React.FormEvent) => {
@@ -107,51 +105,45 @@ export default function BookDetail() {
       if (check.ok) {
         const { _id } = await check.json();
         const itemId = _id;
-        console.log("Item found in wishlist, deleting:", itemId);
-  
+
         // Attempt to delete the item
         const res = await fetch("/api/wishlist/", {
           body: JSON.stringify({ itemId }),
-          method: 'DELETE',
-          headers: { 'Content-Type': 'application/json' }
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
         });
-  
+
         if (res.ok) {
-          console.log("Successfully deleted item from wishlist.");
+          toast.success("Item removed from wishlist");
           setWishedBook(false);
           return;
           // Update state after successful deletion
         } else {
           const errorData = await res.json();
           console.error("Error deleting item:", errorData.message);
-          alert(errorData.message || "Error removing item from wishlist");
+          toast.error(errorData.message || "Error removing item from wishlist");
           return;
         }
       } else {
         console.log("Item not found in wishlist.");
       }
-  
+
       // If not found, add the item to the wishlist
-      const response = await fetch('/api/wishlist/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/wishlist/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           bookId: id,
           title: book.title,
           author: book.author,
           price: book.price,
           stock: book.qty > 10 ? "In-Stock" : "Low-Stock",
-          category: book.category
+          category: book.category,
         }),
       });
-  
+
       if (response.ok) {
-        console.log("Successfully added item to wishlist.");
-        toast({
-          title: "Book added to Wishlist",
-          duration: 5000,
-          className: "bg-white font-bold font-['Space_Grotesk'] text-black border-2 border-black "
-        });
+        toast.success("Book added to Wishlist");
         setWishedBook(true);
       } else {
         const errorData = await response.json();
@@ -159,11 +151,14 @@ export default function BookDetail() {
         alert(errorData.message || "Error adding item to wishlist");
       }
     } catch (err) {
-      console.error("An unexpected error occurred while processing wishlist:", err);
-      alert("An error occurred while processing wishlist.");
+      console.error(
+        "An unexpected error occurred while processing wishlist:",
+        err
+      );
+      toast.error("An error occurred while processing wishlist.");
     }
   };
-  
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -185,7 +180,7 @@ export default function BookDetail() {
         <div className="grid gap-8 lg:grid-cols-2">
           {/* Image Gallery */}
           <div className="space-y-4">
-            <motion.div 
+            <motion.div
               className="relative aspect-[3/4] overflow-hidden rounded-lg bg-muted"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -201,7 +196,11 @@ export default function BookDetail() {
                   className="absolute inset-0"
                 >
                   <Image
-                    src={book.images ? book.images[selectedImage] : `/BookCovers/${id}.png`}
+                    src={
+                      book.images
+                        ? book.images[selectedImage]
+                        : `/BookCovers/${id}.png`
+                    }
                     alt={book.title}
                     fill
                     className="object-cover"
@@ -214,29 +213,35 @@ export default function BookDetail() {
                     key={index}
                     onClick={() => setSelectedImage(index)}
                     className={`h-2 w-2 rounded-full transition-colors ${
-                      index === selectedImage ? "bg-primary" : "bg-muted-foreground/30"
+                      index === selectedImage
+                        ? "bg-primary"
+                        : "bg-muted-foreground/30"
                     }`}
                   />
                 ))}
               </div>
             </motion.div>
             <div className="flex space-x-4 overflow-auto pb-2">
-              {book.images ? book.images.map((image, index) => (
-                <button
-                  key={index}
-                  onClick={() => setSelectedImage(index)}
-                  className={`relative aspect-[3/4] w-20 flex-shrink-0 overflow-hidden rounded-lg border-2 transition-colors ${
-                    index === selectedImage ? "border-primary" : "border-transparent"
-                  }`}
-                >
-                  <Image
-                    src={image}
-                    alt={`${book.title} - View ${index + 1}`}
-                    fill
-                    className="object-cover"
-                  />
-                </button>
-              )) : null}
+              {book.images
+                ? book.images.map((image, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setSelectedImage(index)}
+                      className={`relative aspect-[3/4] w-20 flex-shrink-0 overflow-hidden rounded-lg border-2 transition-colors ${
+                        index === selectedImage
+                          ? "border-primary"
+                          : "border-transparent"
+                      }`}
+                    >
+                      <Image
+                        src={image}
+                        alt={`${book.title} - View ${index + 1}`}
+                        fill
+                        className="object-cover"
+                      />
+                    </button>
+                  ))
+                : null}
             </div>
           </div>
 
@@ -284,7 +289,11 @@ export default function BookDetail() {
                   Add to Cart
                 </Button>
                 <Button onClick={handleWishlist} variant="outline" size="icon">
-                  {wishedBook ? <Heart fill='red' className="h-4 w-4" />:<Heart  className="h-4 w-4" />}
+                  {wishedBook ? (
+                    <Heart fill="red" className="h-4 w-4" />
+                  ) : (
+                    <Heart className="h-4 w-4" />
+                  )}
                 </Button>
               </div>
             </div>
@@ -300,7 +309,10 @@ export default function BookDetail() {
               <TabsContent value="details">
                 <dl className="space-y-4">
                   {Object.entries(bookData.details).map(([key, value]) => (
-                    <div key={key} className="flex justify-between border-b pb-2">
+                    <div
+                      key={key}
+                      className="flex justify-between border-b pb-2"
+                    >
                       <dt className="font-medium capitalize">{key}</dt>
                       <dd className="text-muted-foreground">{value}</dd>
                     </div>
@@ -310,10 +322,7 @@ export default function BookDetail() {
             </Tabs>
           </div>
         </div>
-
-        
       </main>
     </div>
-  )
+  );
 }
-

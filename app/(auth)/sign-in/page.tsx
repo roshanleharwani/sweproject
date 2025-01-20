@@ -1,48 +1,50 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-'use client'
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { BookOpen } from 'lucide-react'
-import Link from "next/link"
-import { motion } from "framer-motion"
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { BookOpen } from "lucide-react";
+import Link from "next/link";
+import { motion } from "framer-motion";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "react-hot-toast";
 
 export default function SignIn() {
-    const router = useRouter();
-    const [email,setEmail] = useState("");
-    const [password,setPassword] = useState("");
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-    const handleSubmit = async (e: { preventDefault: () => void }) => {
-      e.preventDefault();
+  const handleSubmit = async (e: { preventDefault: () => void }) => {
+    e.preventDefault();
 
-      if(!email || !password){
-        alert("Please fill all fields");
-        return;
+    if (!email || !password) {
+      toast.error("Email and password are required!");
+      return;
+    }
+    try {
+      const res = await fetch(
+        `/api/users?email=${encodeURIComponent(
+          email
+        )}&password=${encodeURIComponent(password)}`,
+        {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+
+      if (res.ok) {
+        router.push("/user/home");
+        toast.success("logged In Successfully");
+      } else {
+        const errorData = await res.json();
+        toast.error(errorData.message || "Incorrect email or password");
       }
-      try{
-
-        const res = await fetch(`/api/users?email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`, {
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json' }
-        });
-
-        if(res.ok){
-            router.push('/user/home')
-
-          }else{
-            const errorData = await res.json();
-            console.log(errorData.message)
-            alert(errorData.message || "Incorrect email or password");
-          }
-        
-      }catch(err){
-        console.log("Error signing in user",err);
-      }
-    };
+    } catch (err) {
+      toast.error("Something went wrong");
+    }
+  };
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted/50 px-4 py-12">
       <motion.div
@@ -57,7 +59,10 @@ export default function SignIn() {
             <span className="text-xl font-bold">BookHaven</span>
           </Link>
         </div>
-        <form onSubmit={handleSubmit} className="border-[1.5px] bg-white/10 p-4 shadow-lg rounded-lg max-w-2xl">
+        <form
+          onSubmit={handleSubmit}
+          className="border-[1.5px] bg-white/10 p-4 shadow-lg rounded-lg max-w-2xl"
+        >
           <div className="space-y-1 text-center">
             <h2 className="text-2xl font-bold">Sign in</h2>
           </div>
@@ -94,10 +99,15 @@ export default function SignIn() {
             </div>
           </div>
           <div className="flex flex-col space-y-4 mt-4">
-            <Button type="submit" className="w-full">Sign in</Button>
+            <Button type="submit" className="w-full">
+              Sign in
+            </Button>
             <div className="text-center text-sm">
               {"Don't have an account"} ?{" "}
-              <Link href="/sign-up" className="text-primary hover:underline underline-offset-4">
+              <Link
+                href="/sign-up"
+                className="text-primary hover:underline underline-offset-4"
+              >
                 Sign up
               </Link>
             </div>
@@ -105,6 +115,5 @@ export default function SignIn() {
         </form>
       </motion.div>
     </div>
-  )
+  );
 }
-

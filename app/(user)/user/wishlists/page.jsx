@@ -15,7 +15,7 @@ import { motion } from "framer-motion"
 import Image from "next/image"
 import Link from "next/link"
 import { useEffect, useState } from "react"
-
+import {toast} from 'react-hot-toast'
 export default function WishlistPage() {
   const [list, setList] = useState([])
 
@@ -35,8 +35,9 @@ export default function WishlistPage() {
         method: 'DELETE'
       })
       if (res.ok) {
+        toast.success("item removed from wishlist")
         setList((prevList) => prevList.filter(item => item._id !== itemId));
-        console.log("Successfully deleted");
+        
       }
     } catch (error) {
       console.error('Error removing item:', error.message)

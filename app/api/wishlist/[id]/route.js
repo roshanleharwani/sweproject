@@ -3,7 +3,7 @@ import connect from "@/lib/connect"
 import User from "@/app/models/User"
 import jwt from 'jsonwebtoken'
 import Wishlist from '@/app/models/UserWishlist'
-export async function GET(request,{ params }){
+export async function GET(request, { params }) {
     const token = request.cookies.get("auth-token")?.value;
       if (!token) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -15,7 +15,7 @@ export async function GET(request,{ params }){
       if (!user) {
         return NextResponse.json({ error: "User not found" }, { status: 404 });
       }
-      const { id } =await  params
+      const { id } = params;
       console.log(id,user._id)
       const item = await Wishlist.findOne({ user: user._id, bookId:id });
       
