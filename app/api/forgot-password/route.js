@@ -38,7 +38,11 @@ export async function POST(req) {
       },
     });
 
-    const resetLink = `${process.env.BASE_URL}/reset-password/${hash}`;
+    const baseUrl = process.env.NODE_ENV === 'production' ? process.env.PROD_BASE_URL : process.env.BASE_URL;
+    if (!baseUrl) {
+      throw new Error("BASE_URL environment variable is not defined");
+    }
+    const resetLink = `${baseUrl}/reset-password/${hash}`;
 
     const mailOptions = {
       from: `"BookHaven" <${process.env.EMAIL}>`,
