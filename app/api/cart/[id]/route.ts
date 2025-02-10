@@ -62,9 +62,10 @@ export async function PATCH(
   }
 }
 
+// Fixed DELETE handler with correct parameter type
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   await connect();
   try {
@@ -74,7 +75,7 @@ export async function DELETE(
     }
 
     const cartItem = await CartItem.findOneAndDelete({
-      _id: params.id,
+      _id: context.params.id,
       user: user._id,
     });
 
