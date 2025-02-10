@@ -23,7 +23,7 @@ async function verifyAuth(request: NextRequest) {
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   await connect();
   try {
@@ -40,8 +40,9 @@ export async function PATCH(
       );
     }
 
+    const { id } = await params;
     const cartItem = await CartItem.findOne({
-      _id: params.id,
+      _id: id,
       user: user._id,
     });
 
@@ -62,10 +63,9 @@ export async function PATCH(
   }
 }
 
-// Fixed DELETE handler with correct parameter type
 export async function DELETE(
   request: NextRequest,
-  context: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   await connect();
   try {
@@ -74,8 +74,9 @@ export async function DELETE(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const { id } = await params;
     const cartItem = await CartItem.findOneAndDelete({
-      _id: context.params.id,
+      _id: id,
       user: user._id,
     });
 
