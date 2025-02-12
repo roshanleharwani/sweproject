@@ -70,7 +70,7 @@ export default function ResetPassword({
     const validateToken = async () => {
       setIsValidating(true);
       try {
-        const response = await fetch(`${baseUrl}/api/validate-user/${id}`);
+        const response = await fetch(`/api/validate-user/${id}`);
         if (!response.ok) {
           const errorData = await response.json();
           throw new Error(errorData.message || "Invalid or expired reset link");
