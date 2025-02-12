@@ -29,7 +29,7 @@ import { useRouter } from "next/navigation";
 import { use } from "react";
 
 const baseUrl =
-  process.env.NEXT_PUBLIC_API_URL ||
+  process.env.NEXT_PUBLIC_BASE_URL ||
   (typeof window !== "undefined" ? window.location.origin : "");
 
 export default function ResetPassword({
@@ -72,7 +72,7 @@ export default function ResetPassword({
     const validateToken = async () => {
       setIsValidating(true);
       try {
-        const response = await fetch("/api/validate-user/${id}");
+        const response = await fetch(`${baseUrl}/api/validate-user/${id}`);
         if (!response.ok) {
           const errorData = await response.json();
           throw new Error(errorData.message || "Invalid or expired reset link");
