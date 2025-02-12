@@ -36,6 +36,6 @@
     "app/reset-password/[id]/page.jsx",
     "app/api/wishlist/route.js",
     "app/api/wishlist/route.js"
-  ],
+, "app/api/wishlist/[id]/route.js", "app/api/cart/[id]/route.js"  ],
   "exclude": ["node_modules"]
 }
