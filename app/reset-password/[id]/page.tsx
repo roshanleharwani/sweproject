@@ -28,9 +28,7 @@ import { Progress } from "@/components/ui/progress";
 import { useRouter } from "next/navigation";
 import { use } from "react";
 
-const baseUrl =
-  process.env.NEXT_PUBLIC_BASE_URL ||
-  (typeof window !== "undefined" ? window.location.origin : "");
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
 
 export default function ResetPassword({
   params,
