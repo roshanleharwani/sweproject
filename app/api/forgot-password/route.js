@@ -37,7 +37,7 @@ export async function POST(req) {
       },
     });
 
-    const baseUrl = window.location.origin;
+    const baseUrl = process.env.NODE_ENV === 'production' ? process.env.NEXT_PUBLIC_BASE_URL : process.env.BASE_URL;
     if (!baseUrl) {
       throw new Error("BASE_URL environment variable is not defined");
     }
