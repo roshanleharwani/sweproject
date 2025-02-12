@@ -3,9 +3,8 @@ import { NextResponse } from "next/server";
 import connect from "@/lib/connect";
 import User from '@/app/models/User';
 
-
 export async function POST(req) {
-        
+ 
   const { email } = await req.json();
 
   if (!email) {
@@ -38,7 +37,7 @@ export async function POST(req) {
       },
     });
 
-    const baseUrl = process.env.NODE_ENV === 'production' ? process.env.PROD_BASE_URL : process.env.BASE_URL;
+    const baseUrl = window.location.origin;
     if (!baseUrl) {
       throw new Error("BASE_URL environment variable is not defined");
     }
