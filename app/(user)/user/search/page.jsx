@@ -236,7 +236,7 @@ export default function SearchPage() {
                 <CardContent className="p-0">
                   <div className="relative aspect-[3/4]">
                     <Image
-                      src={`/BookCovers/${book._id}.png`}
+                      src={`https://pub-7cf6be04756e4997be8420c6b6cdcacc.r2.dev/${book._id}.png`}
                       alt={book.title}
                       fill
                       className="object-cover transition-transform group-hover:scale-105"

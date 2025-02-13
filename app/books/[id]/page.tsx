@@ -148,7 +148,7 @@ export default function BookDetail() {
       } else {
         const errorData = await response.json();
         console.error("Error adding item to wishlist:", errorData.message);
-        alert(errorData.message || "Error adding item to wishlist");
+        toast.success("Error adding item to wishlist");
       }
     } catch (err) {
       console.error(
@@ -199,7 +199,7 @@ export default function BookDetail() {
                     src={
                       book.images
                         ? book.images[selectedImage]
-                        : `/BookCovers/${id}.png`
+                        : `https://pub-7cf6be04756e4997be8420c6b6cdcacc.r2.dev/${id}.png`
                     }
                     alt={book.title}
                     fill

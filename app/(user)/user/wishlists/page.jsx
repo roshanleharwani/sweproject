@@ -95,7 +95,7 @@ export default function WishlistPage() {
                     <div className="flex items-center gap-4">
                       <div className="relative h-24 w-20">
                         <Image
-                          src={`/BookCovers/${item.bookId}.png`}
+                          src={`https://pub-7cf6be04756e4997be8420c6b6cdcacc.r2.dev/${item.bookId}.png`}
                           alt={item.title}
                           fill
                           className="rounded-md object-cover"
