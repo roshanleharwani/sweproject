@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -16,10 +15,32 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
+
+// Types for better type safety
+interface Book {
+  _id: string;
+  title: string;
+  author: string;
+  price: number;
+  category: string;
+  rating: number;
+  qty: number;
+  __v: number;
+}
+
+// Categories data - moved outside component to prevent recreation on each render
+const categories = [
+  { icon: BookText, label: "Fiction" },
+  { icon: Heart, label: "Romance" },
+  { icon: Coffee, label: "Self Help" },
+  { icon: GraduationCap, label: "Academic" },
+  { icon: BookOpen, label: "Children" },
+  { icon: BookText, label: "Mystery" },
+];
 
 export default function BookstoreLanding() {
-  const bookData = [
+  const bookData: Book[] = [
     {
       _id: "676d4a7546f192c8ff2a98c6",
       title: "The Power of Habit",
@@ -61,22 +82,58 @@ export default function BookstoreLanding() {
       __v: 0,
     },
   ];
-  const [books, setBooks] = useState(bookData);
-  useEffect(() => {
-    const fetcher = async () => {
-      try {
-        const response = await fetch("/api/books/random");
-        if (!response.ok) {
-          console.error("Error fetching random books");
-        }
-        const data = await response.json();
-        setBooks(data);
-      } catch (error) {
-        console.error("Error fetching random books:", error);
+
+  const [books, setBooks] = useState<Book[]>(bookData);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Memoized fetch function using useCallback
+  const fetchBooks = useCallback(async () => {
+    try {
+      const response = await fetch("/api/books/random");
+      if (!response.ok) {
+        console.error("Error fetching random books");
+        return;
       }
-    };
-    fetcher();
+      const data = await response.json();
+      setBooks(data);
+    } catch (error) {
+      console.error("Error fetching random books:", error);
+      // Fallback to default data on error
+      setBooks(bookData);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchBooks();
+  }, [fetchBooks]);
+
+  // Testimonial data - moved outside the render loop
+  const testimonials = [
+    {
+      id: 1,
+      text: "BookHaven has transformed how I discover and read books. Their collection is vast and the service is excellent!",
+      name: "Sarah Johnson",
+      title: "Book Enthusiast",
+    },
+    {
+      id: 2,
+      text: "I've found so many hidden gems through BookHaven that I wouldn't have discovered otherwise. Highly recommend!",
+      name: "Michael Chen",
+      title: "Avid Reader",
+    },
+    {
+      id: 3,
+      text: "The recommendations are spot-on and delivery is always prompt. BookHaven understands what readers want.",
+      name: "Emily Rodriguez",
+      title: "Literature Lover",
+    },
+  ];
+
+  // Handle search input
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  };
+
   return (
     <div className="flex min-h-screen flex-col scroll-smooth">
       {/* Header */}
@@ -107,12 +164,12 @@ export default function BookstoreLanding() {
             </Link>
           </nav>
           <div className="flex items-center space-x-4">
-            <Button variant="ghost" size="icon">
+            <Button variant="ghost" size="icon" aria-label="Shopping Cart">
               <ShoppingCart className="h-5 w-5" />
             </Button>
-            <a href="/sign-in">
+            <Link href="/sign-in">
               <Button>Sign In</Button>
-            </a>
+            </Link>
           </div>
         </div>
       </header>
@@ -142,8 +199,10 @@ export default function BookstoreLanding() {
                     type="search"
                     placeholder="Search books, authors, or genres..."
                     className="flex-1"
+                    value={searchQuery}
+                    onChange={handleSearchChange}
                   />
-                  <Button type="submit">
+                  <Button type="submit" aria-label="Search">
                     <Search className="h-4 w-4" />
                   </Button>
                 </div>
@@ -190,22 +249,25 @@ export default function BookstoreLanding() {
                 >
                   <div className="aspect-[3/4] relative">
                     <Image
-                      src={
-                        `https://pub-7cf6be04756e4997be8420c6b6cdcacc.r2.dev/${book._id}.png` ||
-                        "/placeholder.svg"
-                      }
-                      alt={`Featured Book ${book}`}
+                      src={`https://pub-7cf6be04756e4997be8420c6b6cdcacc.r2.dev/${book._id}.png`}
+                      alt={`Cover of ${book.title} by ${book.author}`}
                       fill
                       className="rounded object-cover transition-transform group-hover:scale-105"
+                      onError={(e) => {
+                        // Fallback to placeholder if image fails to load
+                        (e.target as HTMLImageElement).src = "/placeholder.svg";
+                      }}
                     />
                   </div>
                   <div className="mt-4">
-                    <h3 className="font-semibold">Book Title {book.title}</h3>
+                    <h3 className="font-semibold">{book.title}</h3>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
                       {book.author}
                     </p>
                     <div className="mt-4 flex items-center justify-between">
-                      <span className="font-bold">{book.price}</span>
+                      <span className="font-bold">
+                        ${book.price.toFixed(2)}
+                      </span>
                       <Button size="sm">Add to Cart</Button>
                     </div>
                   </div>
@@ -222,14 +284,7 @@ export default function BookstoreLanding() {
               Browse by Category
             </h2>
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
-              {[
-                { icon: BookText, label: "Fiction" },
-                { icon: Heart, label: "Romance" },
-                { icon: Coffee, label: "Self Help" },
-                { icon: GraduationCap, label: "Academic" },
-                { icon: BookOpen, label: "Children" },
-                { icon: BookText, label: "Mystery" },
-              ].map((category, index) => (
+              {categories.map((category, index) => (
                 <motion.div
                   key={category.label}
                   className="group flex flex-col items-center space-y-4 rounded-lg bg-muted p-6 text-center transition-colors hover:bg-primary hover:text-primary-foreground"
@@ -253,25 +308,24 @@ export default function BookstoreLanding() {
               What Our Readers Say
             </h2>
             <div className="grid gap-8 md:grid-cols-3">
-              {[1, 2, 3].map((testimonial) => (
+              {testimonials.map((testimonial) => (
                 <motion.div
-                  key={testimonial}
+                  key={testimonial.id}
                   className="rounded-lg bg-background p-6 shadow"
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: testimonial * 0.1 }}
+                  transition={{ duration: 0.5, delay: testimonial.id * 0.1 }}
                   viewport={{ once: true }}
                 >
                   <p className="mb-4 text-gray-500 dark:text-gray-400">
-                    BookHaven has transformed how I discover and read books.
-                    Their collection is vast and the service is excellent!
+                    {testimonial.text}
                   </p>
                   <div className="flex items-center space-x-3">
                     <div className="h-10 w-10 rounded-full bg-muted" />
                     <div>
-                      <p className="font-semibold">Reader Name</p>
+                      <p className="font-semibold">{testimonial.name}</p>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Book Enthusiast
+                        {testimonial.title}
                       </p>
                     </div>
                   </div>
@@ -299,17 +353,22 @@ export default function BookstoreLanding() {
                   Subscribe to our newsletter and never miss out on new books
                   and exclusive offers.
                 </p>
-                <div className="flex flex-col space-y-3 sm:flex-row sm:space-x-3 sm:space-y-0">
+                <form
+                  onSubmit={(e) => e.preventDefault()}
+                  className="flex flex-col space-y-3 sm:flex-row sm:space-x-3 sm:space-y-0"
+                >
                   <Input
                     type="email"
                     placeholder="Enter your email"
                     className="flex-1 bg-background text-foreground"
+                    aria-label="Email for newsletter"
+                    required
                   />
-                  <Button variant="secondary">
+                  <Button type="submit" variant="secondary">
                     Subscribe
                     <ChevronRight className="ml-2 h-4 w-4" />
                   </Button>
-                </div>
+                </form>
               </div>
             </motion.div>
           </div>
@@ -384,12 +443,15 @@ export default function BookstoreLanding() {
               <h3 className="mb-4 text-lg font-semibold">Contact</h3>
               <ul className="space-y-2 text-sm text-gray-500 dark:text-gray-400">
                 <li>
-                  <Link href="#" className="hover:text-primary">
+                  <Link
+                    href="mailto:info@bookhaven.com"
+                    className="hover:text-primary"
+                  >
                     info@bookhaven.com
                   </Link>
                 </li>
                 <li>
-                  <Link href="#" className="hover:text-primary">
+                  <Link href="tel:+15551234567" className="hover:text-primary">
                     +1 (555) 123-4567
                   </Link>
                 </li>
