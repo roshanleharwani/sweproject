@@ -14,7 +14,7 @@ export default function RootLayout({
 }>) {
   return (
     <html suppressHydrationWarning={true} lang="en">
-      <body className={` antialiased`}>
+      <body className={`antialiased`}>
         <Toaster position="top-right" />
         {children}
       </body>

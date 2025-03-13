@@ -16,8 +16,67 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 export default function BookstoreLanding() {
+  const bookData = [
+    {
+      _id: "676d4a7546f192c8ff2a98c6",
+      title: "The Power of Habit",
+      author: "Charles Duhigg",
+      price: 14.99,
+      category: "Self-Help",
+      rating: 4.6,
+      qty: 50,
+      __v: 0,
+    },
+    {
+      _id: "676d4a8746f192c8ff2a98df",
+      title: "The Hard Thing About Hard Things",
+      author: "Ben Horowitz",
+      price: 18.49,
+      category: "Business",
+      rating: 4.6,
+      qty: 30,
+      __v: 0,
+    },
+    {
+      _id: "676d4a8746f192c8ff2a98e3",
+      title: "Dare to Lead",
+      author: "Brené Brown",
+      price: 19.49,
+      category: "Business",
+      rating: 4.9,
+      qty: 50,
+      __v: 0,
+    },
+    {
+      _id: "676d4a9246f192c8ff2a98ee",
+      title: "A People's History of the United States",
+      author: "Howard Zinn",
+      price: 15.99,
+      category: "History",
+      rating: 4.7,
+      qty: 55,
+      __v: 0,
+    },
+  ];
+  const [books, setBooks] = useState(bookData);
+  useEffect(() => {
+    const fetcher = async () => {
+      try {
+        const response = await fetch("/api/books/random");
+        if (!response.ok) {
+          console.error("Error fetching random books");
+        }
+        const data = await response.json();
+        setBooks(data);
+      } catch (error) {
+        console.error("Error fetching random books:", error);
+      }
+    };
+    fetcher();
+  }, []);
   return (
     <div className="flex min-h-screen flex-col scroll-smooth">
       {/* Header */}
@@ -120,30 +179,33 @@ export default function BookstoreLanding() {
               </p>
             </div>
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              {[1, 2, 3, 4].map((book) => (
+              {books?.map((book, index) => (
                 <motion.div
-                  key={book}
+                  key={book._id}
                   className="group relative overflow-hidden rounded-lg bg-background p-4 shadow-lg transition-shadow hover:shadow-xl"
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: book * 0.1 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
                   viewport={{ once: true }}
                 >
                   <div className="aspect-[3/4] relative">
                     <Image
-                      src="/placeholder.svg"
+                      src={
+                        `https://pub-7cf6be04756e4997be8420c6b6cdcacc.r2.dev/${book._id}.png` ||
+                        "/placeholder.svg"
+                      }
                       alt={`Featured Book ${book}`}
                       fill
                       className="rounded object-cover transition-transform group-hover:scale-105"
                     />
                   </div>
                   <div className="mt-4">
-                    <h3 className="font-semibold">Book Title {book}</h3>
+                    <h3 className="font-semibold">Book Title {book.title}</h3>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Author Name
+                      {book.author}
                     </p>
                     <div className="mt-4 flex items-center justify-between">
-                      <span className="font-bold">$19.99</span>
+                      <span className="font-bold">{book.price}</span>
                       <Button size="sm">Add to Cart</Button>
                     </div>
                   </div>

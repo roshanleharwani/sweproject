@@ -4,7 +4,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { BookOpen } from "lucide-react";
+import { BookOpen, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useState } from "react";
@@ -15,10 +15,10 @@ export default function SignIn() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
+  const [loading, setLoading] = useState(false);
   const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
-
+    setLoading(true);
     if (!email || !password) {
       toast.error("Email and password are required!");
       return;
@@ -41,8 +41,10 @@ export default function SignIn() {
         const errorData = await res.json();
         toast.error(errorData.message || "Incorrect email or password");
       }
+      setLoading(false);
     } catch (err) {
       toast.error("Something went wrong");
+      setLoading(false);
     }
   };
   return (
@@ -99,8 +101,19 @@ export default function SignIn() {
             </div>
           </div>
           <div className="flex flex-col space-y-4 mt-4">
-            <Button type="submit" className="w-full">
-              Sign in
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={loading || !email}
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Singing In...
+                </>
+              ) : (
+                "Sign In"
+              )}
             </Button>
             <div className="text-center text-sm">
               {"Don't have an account"} ?{" "}

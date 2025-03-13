@@ -10,7 +10,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html suppressHydrationWarning lang="en">
+    <html suppressHydrationWarning={true} lang="en">
       <body className={`  antialiased m-4`}>
         <div className="min-h-screen bg-background">
           <Header />
